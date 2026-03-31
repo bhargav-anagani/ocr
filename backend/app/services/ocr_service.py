@@ -31,12 +31,9 @@ def preprocess_image(image: np.ndarray) -> np.ndarray:
     else:
         gray = image.copy()
 
-    # Denoise
-    denoised = cv2.fastNlMeansDenoising(gray, h=10)
-
     # Adaptive thresholding for better contrast
     thresh = cv2.adaptiveThreshold(
-        denoised, 255,
+        gray, 255,
         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
         cv2.THRESH_BINARY,
         11, 2
