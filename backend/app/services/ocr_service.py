@@ -69,23 +69,34 @@ def ocr_image_array(image_array: np.ndarray) -> Tuple[str, float]:
         config="--oem 3 --psm 6"
     )
 
-    # Extract text and calculate average confidence
-    words = []
+    clean_text_parts = []
     confidences = []
+    
+    last_block = -1
+    last_par = -1
+    last_line = -1
+
     for i, word in enumerate(data["text"]):
         conf = int(data["conf"][i])
         if conf > 0 and word.strip():
-            words.append(word)
+            # Handle spacing
+            if last_block != -1:
+                if data["block_num"][i] != last_block or data["par_num"][i] != last_par:
+                    clean_text_parts.append("\n\n")
+                elif data["line_num"][i] != last_line:
+                    clean_text_parts.append("\n")
+                else:
+                    clean_text_parts.append(" ")
+            
+            clean_text_parts.append(word)
             confidences.append(conf)
+            
+            last_block = data["block_num"][i]
+            last_par = data["par_num"][i]
+            last_line = data["line_num"][i]
 
-    text = " ".join(words)
+    clean_text = "".join(clean_text_parts).strip()
     avg_confidence = sum(confidences) / len(confidences) if confidences else 0.0
-
-    # Also get clean text with layout preserved
-    clean_text = pytesseract.image_to_string(
-        preprocessed,
-        config="--oem 3 --psm 6"
-    ).strip()
 
     return clean_text, round(avg_confidence, 2)
 
@@ -122,8 +133,8 @@ def process_pdf_file(file_bytes: bytes) -> Tuple[str, float, int]:
 
         for page_num in range(page_count):
             page = doc[page_num]
-            # Render at 300 DPI for better OCR quality
-            mat = fitz.Matrix(300 / 72, 300 / 72)
+            # Render at 200 DPI for faster OCR processing 
+            mat = fitz.Matrix(200 / 72, 200 / 72)
             pix = page.get_pixmap(matrix=mat)
             img_bytes = pix.tobytes("png")
 
