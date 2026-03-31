@@ -2,7 +2,7 @@ class AppConstants {
   AppConstants._();
 
   // API base URL - change to your backend URL
-  static const String baseUrl = 'http://localhost:8000';
+  static const String baseUrl = 'https://ocr-avml.onrender.com';
 
   // API endpoints
   static const String registerEndpoint = '/api/auth/register';
