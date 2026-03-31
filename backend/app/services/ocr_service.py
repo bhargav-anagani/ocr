@@ -9,6 +9,7 @@ import numpy as np
 import pytesseract
 from PIL import Image
 import fitz  # PyMuPDF
+import gc
 
 from app.config import settings
 
@@ -132,9 +133,10 @@ def process_pdf_file(file_bytes: bytes) -> Tuple[str, float, int]:
         page_count = len(doc)
 
         for page_num in range(page_count):
+            logger.info(f"Processing PDF page {page_num + 1}/{page_count}...")
             page = doc[page_num]
-            # Render at 200 DPI for faster OCR processing 
-            mat = fitz.Matrix(200 / 72, 200 / 72)
+            # Render at 150 DPI for better memory efficiency/speed while maintaining quality
+            mat = fitz.Matrix(150 / 72, 150 / 72)
             pix = page.get_pixmap(matrix=mat)
             img_bytes = pix.tobytes("png")
 
@@ -147,8 +149,15 @@ def process_pdf_file(file_bytes: bytes) -> Tuple[str, float, int]:
             if text:
                 all_texts.append(f"--- Page {page_num + 1} ---\n{text}")
                 all_confidences.append(confidence)
+            
+            # Help with memory on tight environments
+            del pix
+            del pil_image
+            del image_array
+            gc.collect()
 
         doc.close()
+        logger.info(f"Finished PDF OCR for {page_count} pages.")
 
         combined_text = "\n\n".join(all_texts)
         avg_confidence = (
