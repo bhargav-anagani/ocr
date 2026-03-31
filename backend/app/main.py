@@ -48,10 +48,3 @@ app.include_router(ocr.router)
 async def health_check():
     return {"status": "ok", "service": "OCR API", "version": "1.0.0"}
 
-
-@app.exception_handler(Exception)
-async def global_exception_handler(request, exc):
-    return JSONResponse(
-        status_code=500,
-        content={"detail": f"Internal server error: {str(exc)}"},
-    )
