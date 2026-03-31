@@ -5,12 +5,9 @@ WORKDIR /app
 
 # Install system dependencies
 # - tesseract-ocr: Required for pytesseract
-# - libgl1-mesa-glx, libglib2.0-0: Required for OpenCV
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     tesseract-ocr-eng \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy backend requirements
