@@ -113,7 +113,7 @@ class OcrService {
       onSendProgress: onSendProgress,
       options: Options(
         headers: {'Content-Type': 'multipart/form-data'},
-        receiveTimeout: const Duration(seconds: 120),
+        receiveTimeout: const Duration(seconds: 300),
       ),
     );
 
